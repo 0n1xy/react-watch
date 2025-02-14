@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home_page";
 import WatchPage from "./pages/Watch_page";
-
 function App() {
   return (
     <Router>
