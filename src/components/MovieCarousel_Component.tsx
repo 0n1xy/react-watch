@@ -2,8 +2,6 @@ import { useRef } from "react";
 import { Swiper as SwiperType } from "swiper"; // 🛠 Import kiểu Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import MovieCard from "./MovieCard_Component";
 
