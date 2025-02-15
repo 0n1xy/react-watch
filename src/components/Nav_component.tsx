@@ -45,7 +45,7 @@ function NavComponent() {
   return (
     <nav className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-50">
       {/* Logo + Menu */}
-      <div className="flex items-center space-x-6 text-white font-semibold">
+      <div className="flex items-center space-x-6 text-white font-semibold ml-12">
         <a href="#" className="text-xl font-bold">
           Logo
         </a>
@@ -57,7 +57,7 @@ function NavComponent() {
         </a>
       </div>
 
-      <div className="relative flex items-center space-x-4">
+      <div className="relative flex items-center space-x-4 mr-12">
         <div className="relative flex items-center">
           {/* Thanh tìm kiếm */}
           <AnimatePresence>

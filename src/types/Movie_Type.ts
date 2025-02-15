@@ -9,6 +9,7 @@ export interface IMovie {
   description: string;
   total_episodes: number;
   current_episode: string;
+  episodes: any;
   time?: string | null;
   quality: string;
   language: string;

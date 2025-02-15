@@ -9,7 +9,7 @@ const CATEGORY_MOVIE_API_URL = import.meta.env.VITE_CATEGORY_MOVIE_API_URL;
 const categories = [
   { name: "Phim Hành Động", slug: "hanh-dong" },
   { name: "Phim Hàn Quốc", slug: "han-quoc" },
-  { name: "Phim Khoa Học", slug: "khoa-hoc" },
+  { name: "Phim Hình Sự", slug: "hinh-su" },
 ];
 
 function HomePage() {
@@ -23,7 +23,6 @@ function HomePage() {
         const response = await axios.get(
           `${CATEGORY_MOVIE_API_URL}${category.slug}?page=1`
         );
-        console.log(`Dữ liệu của ${category.name}:`, response.data);
 
         setCategoryMovies((prevMovies) => ({
           ...prevMovies,
@@ -35,8 +34,11 @@ function HomePage() {
     });
   }, []);
 
+  useEffect(() => {
+    document.title = "Watch Movie";
+  }, []);
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="bg-black min-h-screen text-white overflow-hidden">
       <NavComponent />
       <MovieSlide />
       {/* Render từng danh mục phim */}

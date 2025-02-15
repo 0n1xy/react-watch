@@ -21,7 +21,7 @@ const MovieSlide = () => {
   }, []);
 
   return (
-    <div className="w-full h-[500px] relative">
+    <div className="w-full h-[800px] relative">
       <Swiper
         modules={[Autoplay, EffectFade]}
         effect="fade"
