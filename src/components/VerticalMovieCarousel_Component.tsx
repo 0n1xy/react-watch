@@ -23,17 +23,19 @@ const VerticalMovieCarousel = ({ movies }: { movies: any[] }) => {
       <Swiper
         direction="vertical"
         modules={[Navigation]}
-        slidesPerView="auto" // ✅ Hiển thị toàn bộ nội dung
-        spaceBetween={10}
-        loop={false} // ✅ Tắt loop để cuộn mượt
-        freeMode={true} // ✅ Cho phép cuộn tự nhiên
+        slidesPerView="auto"
+        spaceBetween={isMobile ? 5 : 10} // ✅ Giảm khoảng cách trên mobile
+        loop={false}
+        freeMode={isMobile} // ✅ Chỉ bật freeMode trên mobile
         onSwiper={(swiper) => (swiperRef.current = swiper)}
-        className="overflow-y-auto max-h-[600px] md:max-h-screen" // ✅ Giới hạn chiều cao để cuộn
+        className={`overflow-y-auto ${
+          isMobile ? "max-h-[500px]" : "max-h-screen"
+        }`}
       >
         {movies.map((movie) => (
           <SwiperSlide
             key={movie.slug}
-            style={{ height: "auto", minHeight: "250px" }}
+            style={{ height: "auto", minHeight: isMobile ? "200px" : "250px" }}
           >
             <div
               className="relative group cursor-pointer"
@@ -43,20 +45,25 @@ const VerticalMovieCarousel = ({ movies }: { movies: any[] }) => {
               <img
                 src={movie.poster_url}
                 alt={movie.name}
-                className="w-full h-[250px] object-cover rounded-lg"
+                className="w-full object-cover rounded-lg"
+                style={{
+                  height: isMobile ? "200px" : "250px",
+                }}
               />
 
               {/* Overlay tối + Nút Play */}
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition duration-300 rounded-lg flex items-center justify-center">
                 <FaPlay
                   className="text-white opacity-0 group-hover:opacity-100 transition duration-300"
-                  size={30}
+                  size={isMobile ? 24 : 30} // ✅ Nhỏ hơn trên mobile
                 />
               </div>
 
               {/* Thông tin phim */}
-              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/50 to-transparent text-white rounded-b-lg">
-                <h3 className="text-lg font-semibold">{movie.name}</h3>
+              <div className="absolute bottom-0 left-0 right-0 p-2 md:p-3 bg-gradient-to-t from-black via-black/50 to-transparent text-white rounded-b-lg">
+                <h3 className="text-sm md:text-lg font-semibold">
+                  {movie.name}
+                </h3>
                 <p className="text-xs text-gray-300">
                   {movie.time || "N/A"} min
                 </p>
