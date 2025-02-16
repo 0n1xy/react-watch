@@ -1,39 +1,49 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-// import { FiChevronUp, FiChevronDown } from "react-icons/fi";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Swiper as SwiperType } from "swiper";
 import { FaPlay } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { useNavigate } from "react-router-dom";
 
 const VerticalMovieCarousel = ({ movies }: { movies: any[] }) => {
   const swiperRef = useRef<SwiperType | null>(null);
-  const navigate = useNavigate(); // ✅ Hook để chuyển trang
+  const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   if (!movies || movies.length === 0) return null;
 
   return (
-    <div className="relative w-full h-screen ">
+    <div className="relative w-full">
       <Swiper
         direction="vertical"
         modules={[Navigation]}
-        slidesPerView={3}
-        spaceBetween={15}
-        loop={movies.length > 3}
+        slidesPerView="auto" // ✅ Hiển thị toàn bộ nội dung
+        spaceBetween={10}
+        loop={false} // ✅ Tắt loop để cuộn mượt
+        freeMode={true} // ✅ Cho phép cuộn tự nhiên
         onSwiper={(swiper) => (swiperRef.current = swiper)}
-        className="h-full overflow-hidden"
+        className="overflow-y-auto max-h-[600px] md:max-h-screen" // ✅ Giới hạn chiều cao để cuộn
       >
         {movies.map((movie) => (
-          <SwiperSlide key={movie.slug} style={{ height: "280px" }}>
+          <SwiperSlide
+            key={movie.slug}
+            style={{ height: "auto", minHeight: "250px" }}
+          >
             <div
               className="relative group cursor-pointer"
-              onClick={() => navigate(`/movie/${movie.slug}`)} // ✅ Điều hướng khi click
+              onClick={() => navigate(`/movie/${movie.slug}`)}
             >
               {/* Ảnh phim */}
               <img
                 src={movie.poster_url}
                 alt={movie.name}
-                className="w-full h-[280px] object-cover rounded-lg sm:h-[230px]"
+                className="w-full h-[250px] object-cover rounded-lg"
               />
 
               {/* Overlay tối + Nút Play */}

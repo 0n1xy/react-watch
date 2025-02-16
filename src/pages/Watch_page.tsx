@@ -1,11 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import NavComponent from "../components/Nav_component";
 import VerticalMovieCarousel from "../components/VerticalMovieCarousel_Component";
 import { ICategory, IEpisodeItem, IMovie, IServer } from "../types/Movie_Type";
 
-// ✅ Chuyển tên thể loại thành slug an toàn
 const convertToSlug = (str: string) => {
   return str
     .toLowerCase()
@@ -18,6 +17,7 @@ const convertToSlug = (str: string) => {
 
 const WatchPage = () => {
   const { slug, episodeSlug } = useParams();
+  const navigate = useNavigate();
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [currentEpisode, setCurrentEpisode] = useState<IEpisodeItem | null>(
     null
@@ -26,12 +26,13 @@ const WatchPage = () => {
   const [error, setError] = useState("");
   const [currentServer, setCurrentServer] = useState<string>("");
   const [relatedMovies, setRelatedMovies] = useState<IMovie[]>([]);
+  const [isChangingEpisode, setIsChangingEpisode] = useState(false); // ✅ Trạng thái thay đổi tập
 
   useEffect(() => {
     const fetchMovie = async () => {
       try {
         setLoading(true);
-        setError(""); // Reset lỗi trước khi gọi API
+        setError("");
 
         const baseUrl = import.meta.env.VITE_MOVIE_DETAIL_API_URL;
         const apiUrl = `${baseUrl}/${slug}`;
@@ -40,7 +41,7 @@ const WatchPage = () => {
         const movieData = response.data.movie;
         setMovie(movieData);
 
-        // ✅ Tìm tập phim đang xem
+        // ✅ Chỉ set `currentEpisode` nếu `episodeSlug` tồn tại
         const selectedEpisode = movieData.episodes
           .flatMap((server: IServer) => server.items)
           .find((ep: IEpisodeItem) => ep.slug === episodeSlug);
@@ -52,7 +53,7 @@ const WatchPage = () => {
           )?.server_name || ""
         );
 
-        // ✅ Lấy danh sách thể loại của phim
+        // ✅ Lấy danh sách phim liên quan
         const categoryUrl = import.meta.env.VITE_CATEGORY_MOVIE_API_URL;
         const categories = movieData.category["2"].list;
 
@@ -60,7 +61,6 @@ const WatchPage = () => {
           convertToSlug(category.name)
         );
 
-        // ✅ Gọi API lấy phim theo từng thể loại và trộn dữ liệu
         const moviePromises = categorySlugs.map(
           async (categorySlug: string) => {
             try {
@@ -79,7 +79,13 @@ const WatchPage = () => {
         );
 
         const categoryMovies = await Promise.all(moviePromises);
-        setRelatedMovies(categoryMovies.flat());
+        const uniqueMovies = Array.from(
+          new Map(
+            categoryMovies.flat().map((item) => [item.slug, item])
+          ).values()
+        );
+
+        setRelatedMovies(uniqueMovies);
       } catch (err) {
         console.error("Không thể tải thông tin phim.");
         setError("Lỗi khi tải dữ liệu. Vui lòng thử lại sau.");
@@ -88,8 +94,19 @@ const WatchPage = () => {
       }
     };
 
-    if (slug && episodeSlug) fetchMovie();
-  }, [slug, episodeSlug]);
+    if (slug) fetchMovie();
+  }, [slug]);
+
+  // ✅ Chuyển đổi tập phim mà không gây loading lại toàn trang
+  const handleEpisodeChange = (ep: IEpisodeItem, serverName: string) => {
+    setIsChangingEpisode(true);
+    setTimeout(() => {
+      setCurrentEpisode(ep);
+      setCurrentServer(serverName);
+      setIsChangingEpisode(false);
+      navigate(`/watch/${slug}/${ep.slug}`);
+    }, 300); // ✅ Hiệu ứng chuyển đổi nhẹ
+  };
 
   if (loading) {
     return (
@@ -115,30 +132,39 @@ const WatchPage = () => {
       <div className="bg-gray-900 min-h-screen text-white flex flex-col md:flex-row overflow-y-hidden">
         {/* Cột trái: Video Player + Danh sách tập */}
         <div className="w-full md:w-2/3 p-4 md:p-5">
-          {/* 🎬 Video Player (Full Width trên Mobile) */}
+          {/* 🎬 Video Player */}
           <div className="w-full h-[250px] md:h-[700px] rounded-lg overflow-hidden shadow-lg mt-4 md:mt-16">
-            <iframe
-              src={currentEpisode.embed}
-              className="w-full h-full border-none"
-              allowFullScreen
-            ></iframe>
+            {isChangingEpisode ? (
+              <div className="w-full h-full flex items-center justify-center bg-black">
+                <div className="text-white text-lg animate-pulse">
+                  ⏳ Đang tải tập mới...
+                </div>
+              </div>
+            ) : (
+              <iframe
+                src={currentEpisode.embed}
+                className="w-full h-full border-none"
+                allowFullScreen
+              ></iframe>
+            )}
           </div>
 
-          {/* 📝 Danh sách tập - Scroll ngang trên Mobile */}
+          {/* 📝 Danh sách tập */}
           <div className="mt-6">
             <h3 className="text-lg font-bold mb-3">Danh sách tập</h3>
             {movie.episodes?.map((server: IServer, serverIndex: number) => (
               <div key={serverIndex} className="mt-3">
                 <h4 className="text-md font-semibold">{server.server_name}</h4>
-                <div className="flex overflow-x-auto gap-2 mt-2 p-2">
+
+                {/* ✅ Mobile: Cuộn ngang | Desktop: Hiển thị toàn bộ */}
+                <div className="flex flex-wrap md:grid md:grid-cols-8 gap-2 mt-2 p-2">
                   {server.items.map((ep: IEpisodeItem) => (
                     <button
                       key={ep.slug}
-                      onClick={() => {
-                        setCurrentEpisode(ep);
-                        setCurrentServer(server.server_name);
-                      }}
-                      className={`px-3 py-2 text-sm font-bold rounded text-center ${
+                      onClick={() =>
+                        handleEpisodeChange(ep, server.server_name)
+                      }
+                      className={`px-3 py-2 text-sm md:text-base font-bold rounded text-center transition ${
                         ep.slug === currentEpisode.slug &&
                         server.server_name === currentServer
                           ? "bg-red-600 text-white"
@@ -154,17 +180,9 @@ const WatchPage = () => {
           </div>
         </div>
 
-        {/* 📺 Cột phải: Phim cùng thể loại (Ẩn trên mobile) */}
+        {/* 📺 Phim cùng thể loại */}
         <div className="hidden md:block w-1/3 p-5 border-l border-gray-700 mt-16">
           <h2 className="text-xl font-bold mb-4">Phim cùng thể loại</h2>
-          <VerticalMovieCarousel movies={relatedMovies} />
-        </div>
-
-        {/* 📺 Phim cùng thể loại - Hiển thị trên mobile */}
-        <div className="block md:hidden p-4">
-          <h2 className="text-lg font-bold mb-3 text-center">
-            🎥 Phim cùng thể loại
-          </h2>
           <VerticalMovieCarousel movies={relatedMovies} />
         </div>
       </div>

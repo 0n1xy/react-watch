@@ -40,12 +40,13 @@ const MoviePage = () => {
           {server.server_name}
         </h3>
 
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+        {/* 🔥 Giảm xuống 8 tập trên 1 hàng ở desktop */}
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
           {server.items.map((ep) => (
             <button
               key={ep.slug}
               onClick={() => navigate(`/watch/${movie.slug}/${ep.slug}`)}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white font-bold rounded text-center"
+              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white text-sm md:text-base font-bold rounded text-center"
             >
               {`Tập ${ep.name}`}
             </button>
@@ -75,7 +76,7 @@ const MoviePage = () => {
   return (
     <>
       <NavComponent />
-      <div className="relative min-h-screen bg-black text-white">
+      <div className="relative min-h-screen bg-black text-white overflow-y-hidden">
         {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
