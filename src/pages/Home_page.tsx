@@ -8,8 +8,12 @@ const CATEGORY_MOVIE_API_URL = import.meta.env.VITE_CATEGORY_MOVIE_API_URL;
 
 const categories = [
   { name: "Phim Hành Động", slug: "hanh-dong" },
-  { name: "Phim Hàn Quốc", slug: "han-quoc" },
-  { name: "Phim Hình Sự", slug: "hinh-su" },
+  { name: "Phim Bộ", slug: "phim-bo" },
+  { name: "Phim Lẻ", slug: "phim-le" },
+  { name: "Phim Hàn", slug: "han-quoc" },
+  { name: "Phim Trung", slug: "trung-quoc" },
+  { name: "Phim Việt Nam", slug: "viet-nam" },
+  { name: "Phim Tình Cảm", slug: "tinh-cam" },
   { name: "Phim Kinh Dị", slug: "kinh-di" },
 ];
 
