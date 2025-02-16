@@ -14,8 +14,8 @@ const MovieCard = ({ movie }: { movie: IMovie }) => {
     <div
       className="relative rounded-lg overflow-hidden cursor-pointer group"
       style={{
-        width: "330px",
-        height: "190px",
+        width: "clamp(200px, 20vw, 280px)", // Kích thước thay đổi từ 250px đến 330px
+        height: "clamp(150px, 12vw, 190px)", // Thay đổi từ 150px đến 190px
         backgroundImage: `url(${imageUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",

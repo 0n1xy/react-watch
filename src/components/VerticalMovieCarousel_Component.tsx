@@ -13,7 +13,7 @@ const VerticalMovieCarousel = ({ movies }: { movies: any[] }) => {
   if (!movies || movies.length === 0) return null;
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full h-screen ">
       <Swiper
         direction="vertical"
         modules={[Navigation]}
@@ -33,7 +33,7 @@ const VerticalMovieCarousel = ({ movies }: { movies: any[] }) => {
               <img
                 src={movie.poster_url}
                 alt={movie.name}
-                className="w-full h-[280px] object-cover rounded-lg"
+                className="w-full h-[280px] object-cover rounded-lg sm:h-[230px]"
               />
 
               {/* Overlay tối + Nút Play */}

@@ -42,6 +42,10 @@ function NavComponent() {
     navigate(`/movie/${slug}`); // Điều hướng đến trang phim
   };
 
+  const handleSearchMore = () => {
+    closeSearch();
+    navigate(`/search/${searchTerm}`);
+  };
   return (
     <nav className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-50">
       {/* Logo + Menu */}
@@ -64,7 +68,7 @@ function NavComponent() {
             {isSearchOpen && (
               <motion.div
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 250, opacity: 1 }}
+                animate={{ width: 300, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="absolute right-0 flex items-center bg-white rounded-md shadow-md overflow-hidden"
@@ -116,11 +120,22 @@ function NavComponent() {
               <li
                 key={movie.slug}
                 className="p-2 hover:bg-gray-200 cursor-pointer text-black"
-                onClick={() => handleMovieSelect(movie.slug)} // Chuyển hướng đến trang phim
+                onClick={() => handleMovieSelect(movie.slug)}
               >
                 {movie.name}
               </li>
             ))}
+
+            {/* ✅ Thêm "Tìm thêm với từ khóa" */}
+            {searchTerm && (
+              <li
+                className="p-2 text-blue-500 font-bold hover:bg-gray-100 cursor-pointer border-t border-gray-300"
+                onClick={handleSearchMore}
+              >
+                🔍 Tìm thêm với từ khóa:{" "}
+                <span className="font-semibold">{searchTerm}</span>
+              </li>
+            )}
           </motion.ul>
         )}
       </AnimatePresence>
