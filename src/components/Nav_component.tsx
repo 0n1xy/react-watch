@@ -63,7 +63,6 @@ function NavComponent() {
 
       <div className="relative flex items-center space-x-4 mr-12">
         <div className="relative flex items-center">
-          {/* Thanh tìm kiếm */}
           <AnimatePresence>
             {isSearchOpen && (
               <motion.div
@@ -99,11 +98,6 @@ function NavComponent() {
             </button>
           )}
         </div>
-
-        {/* Icon thông báo */}
-        <button className="text-white text-xl">
-          <FiBell />
-        </button>
       </div>
 
       {/* Danh sách kết quả tìm kiếm (hiển thị ngay dưới input) */}
@@ -111,7 +105,7 @@ function NavComponent() {
         {isSearchOpen && results.length > 0 && (
           <motion.ul
             initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0, x: 35, width: 300 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
             className="absolute top-[50px] right-14 w-[250px] bg-white shadow-lg rounded-md mt-3 mr-12.5"

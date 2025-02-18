@@ -32,25 +32,66 @@ const MoviePage = () => {
   }, [slug]);
 
   // 🔥 Sửa lỗi: Đặt `useMemo` TRƯỚC return
+
+  const handleWatchedEpisode = (episodeSlug: string) => {
+    if (!movie) return;
+
+    const watchedMovies = JSON.parse(
+      localStorage.getItem("watchedMovies") || "[]"
+    );
+
+    const isWatched = watchedMovies.some(
+      (m: { id: string; episodeSlug: string }) =>
+        m.id === movie.id && m.episodeSlug === episodeSlug
+    );
+
+    if (!isWatched) {
+      const updatedMovies = [
+        ...watchedMovies,
+        { id: movie.id, name: movie.name, episodeSlug },
+      ];
+      localStorage.setItem("watchedMovies", JSON.stringify(updatedMovies));
+    }
+  };
+
   const episodeList = useMemo(() => {
     if (!movie?.episodes) return null;
+
+    // Lấy danh sách tập đã xem từ localStorage
+    const watchedMovies = JSON.parse(
+      localStorage.getItem("watchedMovies") || "[]"
+    );
+
     return movie.episodes.map((server, serverIndex) => (
       <div key={serverIndex} className="mb-6">
         <h3 className="text-lg font-semibold text-white mb-2">
           {server.server_name}
         </h3>
 
-        {/* 🔥 Giảm xuống 8 tập trên 1 hàng ở desktop */}
         <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-          {server.items.map((ep) => (
-            <button
-              key={ep.slug}
-              onClick={() => navigate(`/watch/${movie.slug}/${ep.slug}`)}
-              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white text-sm md:text-base font-bold rounded text-center"
-            >
-              {`Tập ${ep.name}`}
-            </button>
-          ))}
+          {server.items.map((ep) => {
+            const isWatched = watchedMovies.some(
+              (m: { id: string; episodeSlug: string }) =>
+                m.id === movie.id && m.episodeSlug === ep.slug
+            );
+
+            return (
+              <button
+                key={ep.slug}
+                onClick={() => {
+                  handleWatchedEpisode(ep.slug);
+                  navigate(`/watch/${movie.slug}/${ep.slug}`);
+                }}
+                className={`w-full px-4 py-2 text-white text-sm md:text-base font-bold rounded text-center transition ${
+                  isWatched
+                    ? "bg-green-600" // ✅ Đổi màu xanh nếu đã xem
+                    : "bg-gray-700 hover:bg-gray-800"
+                }`}
+              >
+                {`Tập ${ep.name}`} {isWatched && "✔️"}
+              </button>
+            );
+          })}
         </div>
       </div>
     ));

@@ -105,6 +105,7 @@ const WatchPage = () => {
       setCurrentServer(serverName);
       setIsChangingEpisode(false);
       navigate(`/watch/${slug}/${ep.slug}`);
+      handleWatchedMovie();
     }, 300); // ✅ Hiệu ứng chuyển đổi nhẹ
   };
 
@@ -125,6 +126,36 @@ const WatchPage = () => {
       <p className="text-center text-white mt-10">Không có dữ liệu phim.</p>
     );
   }
+
+  const handleWatchedMovie = () => {
+    if (!movie || !currentEpisode) {
+      return;
+    }
+
+    // Lấy danh sách phim đã xem từ localStorage
+    const watchedMovies = JSON.parse(
+      localStorage.getItem("watchedMovies") || "[]"
+    );
+
+    // Kiểm tra xem phim đã có trong danh sách chưa
+    const isMovieWatched = watchedMovies.some(
+      (m: { id: string; episodeSlug: string }) =>
+        m.id === movie.id && m.episodeSlug === currentEpisode.slug
+    );
+
+    if (!isMovieWatched) {
+      // Thêm phim vào danh sách đã xem
+      const updatedMovies = [
+        ...watchedMovies,
+        {
+          id: movie.id,
+          name: movie.name,
+          episodeSlug: currentEpisode.slug,
+        },
+      ];
+      localStorage.setItem("watchedMovies", JSON.stringify(updatedMovies));
+    }
+  };
 
   return (
     <>
@@ -151,29 +182,43 @@ const WatchPage = () => {
 
           {/* 📝 Danh sách tập */}
           <div className="mt-6">
-            <h3 className="text-lg font-bold mb-3">Danh sách tập</h3>
+            <div className="flex flex-row justify-between">
+              <h3 className=" text-lg font-bold mb-3">Danh sách tập</h3>
+            </div>
+
             {movie.episodes?.map((server: IServer, serverIndex: number) => (
               <div key={serverIndex} className="mt-3">
                 <h4 className="text-md font-semibold">{server.server_name}</h4>
 
                 {/* ✅ Mobile: Cuộn ngang | Desktop: Hiển thị toàn bộ */}
                 <div className="flex flex-wrap md:grid md:grid-cols-8 gap-2 mt-2 p-2">
-                  {server.items.map((ep: IEpisodeItem) => (
-                    <button
-                      key={ep.slug}
-                      onClick={() =>
-                        handleEpisodeChange(ep, server.server_name)
-                      }
-                      className={`px-3 py-2 text-sm md:text-base font-bold rounded text-center transition ${
-                        ep.slug === currentEpisode.slug &&
-                        server.server_name === currentServer
-                          ? "bg-red-600 text-white"
-                          : "bg-gray-700 hover:bg-gray-800 text-white"
-                      }`}
-                    >
-                      {`Tập ${ep.name}`}
-                    </button>
-                  ))}
+                  {server.items.map((ep: IEpisodeItem) => {
+                    const isWatched = JSON.parse(
+                      localStorage.getItem("watchedMovies") || "[]"
+                    ).some(
+                      (m: { id: string; episodeSlug: string }) =>
+                        m.id === movie.id && m.episodeSlug === ep.slug
+                    );
+
+                    return (
+                      <button
+                        key={ep.slug}
+                        onClick={() =>
+                          handleEpisodeChange(ep, server.server_name)
+                        }
+                        className={`px-3 py-2 text-sm md:text-base font-bold rounded text-center transition ${
+                          ep.slug === currentEpisode.slug &&
+                          server.server_name === currentServer
+                            ? "bg-red-600 text-white"
+                            : isWatched
+                            ? "bg-green-500 text-white" // ✅ Nếu đã xem, đổi màu xanh
+                            : "bg-gray-700 hover:bg-gray-800 text-white"
+                        }`}
+                      >
+                        {`Tập ${ep.name}`} {isWatched && "✔️"}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
